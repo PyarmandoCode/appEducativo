@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>Seleccionar Sección</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            min-height: 100vh;
+        }
+        .container {
+            margin-top: 5%;
+        }
+        .seccion-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            text-align: center;
+            transition: 0.3s;
+        }
+        .seccion-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-white">Bienvenido Profesor(a), {{ profesor.profesor }}</h2>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Cerrar sesión</button>
+            </form>
+        </div>
+
+        <div class="row">
+            {% for seccion in secciones %}
+            <div class="col-md-4">
+                <div class="seccion-card">
+                    <h3>{{ seccion.Seccion }}</h3>
+                    <a href="{% url 'ver_estudiantes' seccion.id %}" class="btn btn-primary mt-3">Ver Alumnos</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

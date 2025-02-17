@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Asistencia</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.1"></script> <!-- Librería de confeti -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+        }
+        #foto-container {
+            display: none;
+            margin-top: 20px;
+        }
+        img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+        }
+        .mensaje {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📌 Registro de Asistencia</h2>
+        <p>Escanea el código de QR del estudiante</p>
+
+        <input type="text" id="codigo_barras" class="form-control text-center" placeholder="Escanear código QR" autofocus>
+        <button class="btn btn-success mt-3" onclick="registrarAsistencia()">✅ Registrar</button>
+
+        <div id="foto-container">
+            <img id="foto-estudiante" src="" alt="Foto del Estudiante">
+            <p id="mensaje-bienvenida" class="mensaje"></p>
+        </div>
+
+        <p id="mensaje" class="mensaje mt-3"></p>
+    </div>
+
+    <script>
+        function lanzarConfeti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function registrarAsistencia() {
+            let codigo = $("#codigo_barras").val().trim();
+            if (codigo === "") return;
+
+            $.ajax({
+                url: "{% url 'registrar_asistencia' %}",
+                method: "POST",
+                data: { codigo_barras: codigo, csrfmiddlewaretoken: "{{ csrf_token }}" },
+                success: function(response) {
+                    if (response.success) {
+                        $("#mensaje").text("").css("color", "lightgreen");
+                        $("#foto-container").fadeIn();
+                        $("#foto-estudiante").attr("src", response.foto);
+                        $("#mensaje-bienvenida").text(`🎉 ¡Bienvenido ${response.nombre}! Que tenga un excelente día 🎉`);
+                        lanzarConfeti();
+                    } else {
+                        $("#mensaje").text(response.mensaje).css("color", "red");
+                        $("#foto-container").fadeOut();
+                    }
+                    $("#codigo_barras").val("");
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#codigo_barras").keypress(function(event) {
+                if (event.which === 13) {
+                    registrarAsistencia();
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
