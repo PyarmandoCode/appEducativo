@@ -55,7 +55,7 @@ class Estudiante(models.Model):
         if not self.matricula:
             self.matricula = get_random_string(10)
 
-        # Generar código QR
+        # Generar código QR ddd
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
